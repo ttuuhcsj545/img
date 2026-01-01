@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infra Status | Tian Zhihao</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #050505; color: #a1a1aa; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
+        .grid-bg { background-image: radial-gradient(#1a1a1a 1px, transparent 1px); background-size: 30px 30px; }
+        .tech-card { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; position: relative; }
+        .tech-card:hover { border-color: #58a6ff; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .glow-green { box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+        .terminal-text { color: #58a6ff; font-size: 11px; }
+        code { color: #e6edf3; }
+
+        /* SVG 实时动画样式 */
+        .flow-line { transition: stroke 0.5s ease; stroke: #30363d; }
+        .flow-active { stroke: #58a6ff; stroke-dasharray: 8; animation: flowMove 1s linear infinite; }
+        @keyframes flowMove { to { stroke-dashoffset: -16; } }
+        .node-active { stroke: #58a6ff !important; fill: rgba(88, 166, 255, 0.1) !important; }
+    </style>
+</head>
+<body class="grid-bg min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <nav class="flex justify-between items-center mb-16 border-b border-zinc-800 pb-6">
+            <div class="text-white font-bold text-xl tracking-tighter">
+                SYSTEM<span class="text-blue-500">_INFRA</span>
+            </div>
+            <div class="flex items-center space-x-4 text-[10px]">
+                <span class="flex items-center gap-2">
+                    <span class="status-dot bg-green-500 glow-green"></span>
+                    <span class="text-zinc-400 uppercase">Edge Nodes: Active</span>
+                </span>
+            </div>
+        </nav>
+
+        <header class="mb-20">
+            <h1 class="text-5xl font-extrabold text-white mb-6 tracking-tight">
+                存储与分发<span class="text-zinc-600">架构协议</span>
+            </h1>
+            <p class="text-gray-500 max-w-2xl leading-relaxed">
+                基于 GitHub REST API 进行文件写入，通过 Netlify Webhook 触发全球边缘节点同步。实现静态资源（Images/Assets）的原子化管理与持久化缓存。
+            </p>
+        </header>
+
+        <section class="mb-20">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-blue-500 text-xl">#</span>
+                <h2 class="text-white text-xl font-bold">节点监控 / Live Deploys</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="tech-card p-6 rounded-lg">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-white font-bold mb-1">Personal Blog</h3>
+                            <p class="terminal-text">blog.lnova.top</p>
+                        </div>
+                        <img id="blog-badge" src="https://api.netlify.com/api/v1/badges/095f76dd-cd72-4c23-8c02-b3c7d97d181d/deploy-status" alt="Deploy Status" class="h-5">
+                    </div>
+                    
+                    <div class="space-y-4 text-[11px]">
+                        <div class="flex justify-between">
+                            <span class="text-zinc-500 uppercase">Current State</span>
+                            <span id="blog-state" class="text-green-500 font-bold italic">Checking...</span>
+                        </div>
+                        <div class="flex justify-between border-t border-zinc-800 pt-2">
+                            <span class="text-zinc-500 uppercase">Last Build Time</span>
+                            <span id="blog-time" class="text-zinc-300">-- : -- : --</span>
+                        </div>
+                        <div class="flex justify-between border-t border-zinc-800 pt-2">
+                            <span class="text-zinc-500 uppercase">Commit Hash</span>
+                            <span id="blog-commit" class="text-blue-400">#0000000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-card p-6 rounded-lg">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-white font-bold mb-1">Image Infrastructure</h3>
+                            <p class="terminal-text">github.lnova.top</p>
+                        </div>
+                        <img id="img-badge" src="https://api.netlify.com/api/v1/badges/285ca6ef-0885-4899-81d2-dd54b34234a8/deploy-status" alt="Deploy Status" class="h-5">
+                    </div>
+                    
+                    <div class="space-y-4 text-[11px]">
+                        <div class="flex justify-between">
+                            <span class="text-zinc-500 uppercase">Current State</span>
+                            <span id="img-state" class="text-blue-500 font-bold italic">Checking...</span>
+                        </div>
+                        <div class="flex justify-between border-t border-zinc-800 pt-2">
+                            <span class="text-zinc-500 uppercase">Last Build Time</span>
+                            <span id="img-time" class="text-zinc-300">-- : -- : --</span>
+                        </div>
+                        <div class="flex justify-between border-t border-zinc-800 pt-2">
+                            <span class="text-zinc-500 uppercase">Commit Hash</span>
+                            <span id="img-commit" class="text-blue-400">#0000000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-20">
+            <h3 class="text-white text-xl font-bold mb-10 flex items-center">
+                <span class="text-blue-500 mr-2">/</span> 数据流拓扑
+            </h3>
+            <div class="tech-card p-8 rounded-lg overflow-hidden border-dashed">
+                <svg viewBox="0 0 800 120" class="w-full h-auto">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#30363d" />
+                        </marker>
+                    </defs>
+                    
+                    <path id="flow-1" d="M180 60 H 300" stroke="#30363d" stroke-width="2" fill="none" marker-end="url(#arrow)" class="flow-line" />
+                    <path id="flow-2" d="M500 60 H 620" stroke="#30363d" stroke-width="2" fill="none" marker-end="url(#arrow)" class="flow-line" />
+
+                    <rect x="20" y="30" width="160" height="60" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="1" />
+                    <text x="100" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">WEB CONTROLLER</text>
+                    <text x="100" y="75" text-anchor="middle" fill="#555" font-size="10">PHASE_01: INPUT</text>
+
+                    <rect id="node-2" x="300" y="30" width="200" height="60" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="1" />
+                    <text x="400" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">GITHUB WEBHOOK</text>
+                    <text x="400" y="75" text-anchor="middle" fill="#555" font-size="10">PHASE_02: CI/CD</text>
+
+                    <rect id="node-3" x="620" y="30" width="160" height="60" rx="4" fill="#0d1117" stroke="#30363d" stroke-width="1" />
+                    <text x="700" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">GLOBAL CDN</text>
+                    <text x="700" y="75" text-anchor="middle" fill="#555" font-size="10">PHASE_03: EDGE</text>
+                </svg>
+            </div>
+        </section>
+
+        <section>
+            <div id="status-log" class="bg-black rounded p-4 font-mono text-[10px] border border-zinc-900 leading-loose">
+                <div class="text-zinc-600">[SYSTEM] Initialization sequences completed...</div>
+                <div class="text-zinc-600">[NETLIFY] Listening for upstream Webhooks...</div>
+                <div class="text-green-900 font-bold">[READY] All distribution channels are online.</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        async function updateStatus(siteId, stateId, timeId, commitId, badgeId, flowId, nodeId) {
+            const now = Date.now();
+            try {
+                // 1. 实时更新 Badge 图片 (通过添加时间戳防止缓存)
+                const badgeImg = document.getElementById(badgeId);
+                const baseUrl = badgeImg.src.split('?')[0];
+                badgeImg.src = `${baseUrl}?t=${now}`;
+
+                // 2. 调用 API 获取详细数据
+                const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/deploys?_=${now}`);
+                const data = await res.json();
+                const last = data[0];
+
+                const state = last.state.toUpperCase();
+                const stateEl = document.getElementById(stateId);
+                stateEl.innerText = state;
+
+                // 3. SVG 拓扑实时联动
+                const flowEl = document.getElementById(flowId);
+                const nodeRect = document.getElementById(nodeId);
+                
+                if (state === 'BUILDING' || state === 'ENQUEUED' || state === 'PROCESSING') {
+                    stateEl.classList.add('animate-pulse');
+                    stateEl.style.color = '#eab308'; // Building 使用黄色
+                    flowEl.classList.add('flow-active');
+                    nodeRect.classList.add('node-active');
+                } else {
+                    stateEl.classList.remove('animate-pulse');
+                    stateEl.style.color = state === 'READY' ? '#22c55e' : '#ef4444';
+                    flowEl.classList.remove('flow-active');
+                    nodeRect.classList.remove('node-active');
+                }
+
+                document.getElementById(timeId).innerText = new Date(last.published_at).toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+                document.getElementById(commitId).innerText = last.commit_ref ? last.commit_ref.substring(0, 7) : 'MANUAL';
+            } catch (err) {
+                document.getElementById(stateId).innerText = "ERROR";
+            }
+        }
+
+        function refreshAll() {
+            // 站点 1：Blog
+            updateStatus('095f76dd-cd72-4c23-8c02-b3c7d97d181d', 'blog-state', 'blog-time', 'blog-commit', 'blog-badge', 'flow-1', 'node-2');
+            // 站点 2：Images
+            updateStatus('285ca6ef-0885-4899-81d2-dd54b34234a8', 'img-state', 'img-time', 'img-commit', 'img-badge', 'flow-2', 'node-3');
+        }
+
+        // 首次执行
+        refreshAll();
+        // 每 15 秒自动更新一次
+        setInterval(refreshAll, 4000);
+    </script>
+</body>
+</html>
